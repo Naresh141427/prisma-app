@@ -1,0 +1,26 @@
+import express, { NextFunction, Request, Response } from "express";
+import dotenv from "dotenv";
+import logger from "./src/utils/logger";
+import requestLogger from "./src/utils/requestLogger";
+import userRoutes from "./src/routes/userRoutes";
+import globalErrorHandler from "./src/middlewares/globalErrorHandler";
+import { AppError } from "./src/utils/AppError";
+
+dotenv.config();
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.use(express.json());
+app.use(requestLogger);
+
+app.use("/api/users", userRoutes);
+
+app.get("/health", (req: Request, res: Response) => res.status(200).send("OK"));
+
+app.all(/(.*)/, (req: Request, res: Response, next: NextFunction) => {
+  next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
+});
+
+app.use(globalErrorHandler);
+app.listen(PORT, () => logger.info(`Server running on port ${PORT}`));

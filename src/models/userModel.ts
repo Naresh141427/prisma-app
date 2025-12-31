@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import prisma from "../utils/prisma";
 import { CreateUserInput } from "../schemas/userSchemas";
 
@@ -7,9 +8,16 @@ export const findUserByEmail = async (email: string) => {
   });
 };
 
-export const createNewUserInDB = async (data: CreateUserInput) => {
+export const createNewUserInDB = async (data: Prisma.UserCreateInput) => {
   return await prisma.user.create({
     data,
+    select: {
+      id: true,
+      email: true,
+      username: true,
+      createdAt: true,
+      updateAt: true,
+    },
   });
 };
 

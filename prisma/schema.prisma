@@ -1,5 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
   provider = "prisma-client-js"
@@ -12,7 +10,7 @@ datasource db {
 
 // User Model
 model User {
-  id       Int     @id @default(autoincrement())
+  id       String     @id @default(uuid())
   email    String  @unique
   username String
   password String
@@ -23,7 +21,7 @@ model User {
 
 // Post Model
 model Post {
-  id        Int      @id @default(autoincrement())
+  id        String      @id @default(uuid())
   title     String
   content   String?
   published Boolean  @default(false)
@@ -31,6 +29,6 @@ model Post {
   updatedAt DateTime @updatedAt
   
   // Relation to User
-  authorId  Int
+  authorId  String
   author    User     @relation(fields: [authorId], references: [id])
 }

@@ -1,4 +1,5 @@
 import argon2 from "argon2";
+import crypto from "crypto";
 import jwt, { SignOptions } from "jsonwebtoken";
 import redis from "./redis";
 
@@ -19,7 +20,11 @@ export const verifyPassword = async (
   }
 };
 
-export const generateToken = (userId: number) => {
+export const hashToken = (token: string): string => {
+  return crypto.createHash("sha256").update(token).digest("hex");
+};
+
+export const generateToken = (userId: string) => {
   const accessOptions: SignOptions = {
     expiresIn: env.JWT_ACCESS_EXPIRY as any,
   };
@@ -43,7 +48,7 @@ export const generateToken = (userId: number) => {
   return { accessToken, refreshToken };
 };
 
-export const storeRefreshToken = async (userId: number, token: string) => {
-  const key = `refresh_token:${userId}`;
-  await redis.set
-};
+// export const storeRefreshToken = async (userId: number, token: string) => {
+//   const key = `refresh_token:${userId}`;
+//   await redis.set;
+// };

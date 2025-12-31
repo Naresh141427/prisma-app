@@ -2,7 +2,7 @@ import express, { NextFunction, Request, Response } from "express";
 import dotenv from "dotenv";
 import logger from "./src/utils/logger";
 import requestLogger from "./src/utils/requestLogger";
-import userRoutes from "./src/routes/userRoutes";
+import authRoutes from "./src/routes/authRoutes";
 import globalErrorHandler from "./src/middlewares/globalErrorHandler";
 import { AppError } from "./src/utils/AppError";
 
@@ -14,7 +14,7 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(requestLogger);
 
-app.use("/api/users", userRoutes);
+app.use("/api/auth", authRoutes);
 
 app.get("/health", (req: Request, res: Response) => res.status(200).send("OK"));
 

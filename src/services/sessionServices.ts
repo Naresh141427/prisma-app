@@ -1,14 +1,14 @@
 import redis from "../utils/redis";
 
 import { AppError } from "../utils/AppError";
-import { SessionPath } from "node:quic";
+import { hashToken } from "../utils/authUtils";
 
 const SESSION_PREFIX = "session";
 const USER_SESSION_PREFIX = "user_session";
 
 export interface SessionData {
   userId: string;
-  refreshToken: string;
+  refreshTokenHash: string;
   userAgent?: string;
   ipAddress?: string;
   expiresAt: string;
@@ -31,12 +31,14 @@ export const sessionService = {
     ipAddress,
     expiresAt,
   }: CreateSessionInput) {
-    const sessionKey = `${SESSION_PREFIX}${refreshToken}`;
+    const tokenHash = hashToken(refreshToken);
+
+    const sessionKey = `${SESSION_PREFIX}${tokenHash}`;
     const userSessionKey = `${USER_SESSION_PREFIX}${userId}`;
 
     const sessionData: SessionData = {
       userId: userId.toString(),
-      refreshToken,
+      refreshTokenHash: tokenHash,
       userAgent,
       ipAddress,
       expiresAt: expiresAt.toISOString(),
@@ -54,9 +56,18 @@ export const sessionService = {
 
     const pipeline = redis.multi();
     pipeline.set(sessionKey, JSON.stringify(sessionData), "EX", ttlSeconds);
-    pipeline.sadd(userSessionKey, refreshToken);
+    pipeline.sadd(userSessionKey, tokenHash);
     await pipeline.exec();
     return refreshToken;
+  },
+
+  async findSession(token: string): Promise<SessionData | null> {
+    const tokenHash = hashToken(token);
+    const sessionKey = `${SESSION_PREFIX}${tokenHash}`;
+    const data = await redis.get(sessionKey);
+
+    if (!data) return null;
+    return JSON.parse(data) as SessionData;
   },
 
   async deleteSession(token: string) {

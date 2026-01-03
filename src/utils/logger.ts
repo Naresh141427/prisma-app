@@ -1,5 +1,5 @@
 import pino from "pino";
-import dayjs from "dayjs"; // Optional: for nice timestamps (npm i dayjs)
+import dayjs from "dayjs"; 
 
 const logger = pino({
   // Level: 'info' means we log everything from info, warn, and error.

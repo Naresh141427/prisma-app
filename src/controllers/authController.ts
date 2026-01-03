@@ -1,10 +1,10 @@
 import { Request, Response, NextFunction } from "express";
-import catchAsync from "../utils/catchAsync";
 
+import catchAsync from "../utils/catchAsync";
 import { CreateUserInput, LoginUserInput } from "../schemas/userSchemas";
 import * as authService from "../services/authServices";
 import { env } from "../config/env";
-import { email } from "zod";
+import { AppError } from "../utils/AppError";
 
 export const signup = catchAsync(
   async (
@@ -54,6 +54,55 @@ export const login = catchAsync(
         },
         accessToken,
       },
+    });
+  }
+);
+
+export const refreshAccessToken = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const refreshToken = req.cookies.refreshToken;
+
+    if (!refreshToken) {
+      return next(new AppError("Could not rotate access token", 401));
+    }
+
+    const { accessToken, refreshToken: newRefreshToken } =
+      await authService.refreshUserSessionService(refreshToken);
+
+    res.cookie("refreshToken", newRefreshToken, {
+      httpOnly: true,
+      secure: env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    res.status(200).json({
+      success: true,
+      status: "success",
+      data: {
+        accessToken,
+      },
+    });
+  }
+);
+
+export const logout = catchAsync(
+  async (req: Request, res: Response, next: Response) => {
+    const refreshToken = req.cookies.refreshToken;
+
+    if (refreshToken) {
+      await authService.logoutUserSessionService(refreshToken);
+    }
+
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      secure: env.NODE_ENV === "production",
+      sameSite: "strict",
+    });
+    res.status(200).json({
+      success: true,
+      status: "success",
+      message: "Logged out successfully",
     });
   }
 );

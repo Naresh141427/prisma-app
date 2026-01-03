@@ -1,4 +1,5 @@
 import express, { NextFunction, Request, Response } from "express";
+import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import logger from "./src/utils/logger";
 import requestLogger from "./src/utils/requestLogger";
@@ -12,6 +13,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
+app.use(cookieParser());
 app.use(requestLogger);
 
 app.use("/api/auth", authRoutes);

@@ -1,8 +1,11 @@
+import jwt from "jsonwebtoken";
+import { env } from "../config/env";
+
 import { CreateUserInput, LoginUserInput } from "../schemas/userSchemas";
 import * as userModel from "../models/userModel";
 import { AppError } from "../utils/AppError";
 import {
-  generateToken,
+  generateTokens,
   hashPassword,
   verifyPassword,
 } from "../utils/authUtils";
@@ -48,7 +51,7 @@ export const loginService = async (
     throw new AppError("Invalid password", 400);
   }
 
-  const { accessToken, refreshToken } = await generateToken(dbUser.id);
+  const { accessToken, refreshToken } = await generateTokens(dbUser.id);
   // const sessionData = {
 
   // }
@@ -65,4 +68,47 @@ export const loginService = async (
   });
 
   return { dbUser, accessToken, refreshToken };
+};
+
+export const refreshUserSessionService = async (refreshToken: string) => {
+  let decoded;
+
+  try {
+    decoded = (await jwt.verify(refreshToken, env.JWT_REFRESH_SECRET)) as {
+      userId: string;
+    };
+  } catch {
+    throw new AppError("Invalid or expired refresh token", 401);
+  }
+
+  // check session exist in redis
+  const session = await sessionService.findSession(refreshToken);
+
+  if (!session) {
+    throw new AppError("Session is not active", 401);
+  }
+
+  // generate new token
+  const { accessToken, refreshToken: newRefreshToken } = await generateTokens(
+    session.userId
+  );
+
+  const newExpiry = new Date();
+  newExpiry.setDate(newExpiry.getDate() + 7);
+
+  const success = await sessionService.rotateSession(
+    refreshToken,
+    newRefreshToken,
+    newExpiry
+  );
+
+  if (!success) {
+    throw new AppError("Could not refresh session", 500);
+  }
+
+  return { accessToken, refreshToken: newRefreshToken };
+};
+
+export const logoutUserSessionService = async (refreshToken: string) => {
+  await sessionService.deleteSession(refreshToken);
 };

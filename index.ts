@@ -19,7 +19,9 @@ app.use(requestLogger);
 
 app.use("/api/auth", authRoutes);
 
-app.get("/health", (req: Request, res: Response) => res.status(200).send("OK"));
+app.get("/", (req: Request, res: Response) =>
+  res.status(200).send("API is running successfully! 🚀")
+);
 
 app.all(/(.*)/, (req: Request, res: Response, next: NextFunction) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));

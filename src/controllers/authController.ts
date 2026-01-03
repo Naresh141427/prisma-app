@@ -110,7 +110,7 @@ export const logout = catchAsync(
 export const logoutAll = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const refreshToken = req.cookies.refreshToken;
-    
+
     if (refreshToken) {
       await authService.logoutAllDevicesService(refreshToken);
     }
@@ -123,7 +123,7 @@ export const logoutAll = catchAsync(
     res.status(200).json({
       success: true,
       status: "success",
-      message: "Loggedout from all devices successfully",
+      message: "Logged out from all devices successfully",
     });
   }
 );

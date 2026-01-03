@@ -16,7 +16,7 @@ export const createNewUserInDB = async (data: Prisma.UserCreateInput) => {
       email: true,
       username: true,
       createdAt: true,
-      updateAt: true,
+      updatedAt: true,
     },
   });
 };

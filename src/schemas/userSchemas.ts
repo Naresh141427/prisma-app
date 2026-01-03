@@ -9,7 +9,7 @@ export const createUserSchema = z.object({
         .min(3, { message: "Username must be at least 3 characters long" }),
       password: z
         .string({ message: "password is required" })
-        .min(6, { message: "password is atleast 6 characters" }),
+        .min(6, { message: "Password must be at least 6 characters" }),
       confirmPassword: z.string({ message: "confirm password is required" }),
     })
     .refine((data) => data.password === data.confirmPassword, {

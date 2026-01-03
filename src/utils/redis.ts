@@ -2,9 +2,7 @@ import Redis from "ioredis";
 import { env } from "../config/env";
 import logger from "./logger";
 
-const redis = new Redis({
-  host: env.REDIS_HOST,
-  port: env.REDIS_PORT,
+const redis = new Redis(env.REDIS_URL, {
   maxRetriesPerRequest: null,
 });
 

@@ -16,10 +16,11 @@ const envSchema = z.object({
   JWT_ACCESS_EXPIRY: z.string().default("15m"),
   JWT_REFRESH_EXPIRY: z.string().default("7d"),
 
-  REDIS_HOST: z
-    .string({ message: "REDIS_HOST is required" })
-    .default("127.0.0.1"),
-  REDIS_PORT: z.coerce.number().default(6379),
+  REDIS_URL: z
+    .string({ message: "REDIS_URL is required" })
+    .refine((url) => url.startsWith("rediss://"), {
+      message: "Must be a valid secure Redis URL (starting with rediss://)",
+    }),
 });
 
 const _env = envSchema.safeParse(process.env);

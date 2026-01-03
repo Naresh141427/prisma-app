@@ -10,6 +10,6 @@ router.post("/signup", validateResource(createUserSchema), authHandler.signup);
 router.post("/login", validateResource(loginUserSchema), authHandler.login);
 router.get("/refresh", authHandler.refreshAccessToken);
 router.post("/logout", authHandler.logout);
-
+router.post("/logout-all", authHandler.logoutAll);
 
 export default router;

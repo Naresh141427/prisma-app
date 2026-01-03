@@ -71,7 +71,8 @@ export const sessionService = {
   },
 
   async deleteSession(token: string) {
-    const sessionKey = `${SESSION_PREFIX}${token}`;
+    const tokenHash = hashToken(token);
+    const sessionKey = `${SESSION_PREFIX}${tokenHash}`;
 
     const data = await redis.get(sessionKey);
     if (data) {
@@ -80,22 +81,24 @@ export const sessionService = {
 
       const pipeline = await redis.multi();
       pipeline.del(sessionKey);
-      pipeline.srem(userSessionKey, token);
+      pipeline.srem(userSessionKey, tokenHash);
+      await pipeline.exec();
       return true;
     }
 
     return false;
   },
 
-  async deleteAllSessions(userId: number) {
+  async deleteAllSessions(userId: string) {
     const userSessionKey = `${USER_SESSION_PREFIX}${userId}`;
 
     const tokens = await redis.smembers(userSessionKey);
+
     if (tokens.length === 0) {
       return 0;
     }
 
-    const pipeline = await redis.multi();
+    const pipeline = redis.multi();
 
     for (const token of tokens) {
       pipeline.del(`${SESSION_PREFIX}${token}`);

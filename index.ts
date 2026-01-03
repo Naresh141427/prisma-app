@@ -6,11 +6,12 @@ import requestLogger from "./src/utils/requestLogger";
 import authRoutes from "./src/routes/authRoutes";
 import globalErrorHandler from "./src/middlewares/globalErrorHandler";
 import { AppError } from "./src/utils/AppError";
+import { env } from "./src/config/env";
 
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = env.PORT || 3000;
 
 app.use(express.json());
 app.use(cookieParser());
@@ -25,4 +26,7 @@ app.all(/(.*)/, (req: Request, res: Response, next: NextFunction) => {
 });
 
 app.use(globalErrorHandler);
-app.listen(PORT, () => logger.info(`Server running on port ${PORT}`));
+
+app.listen(Number(PORT), () => {
+  logger.info(`Server running on port ${PORT}`);
+});

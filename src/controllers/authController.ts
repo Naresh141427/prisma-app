@@ -106,3 +106,24 @@ export const logout = catchAsync(
     });
   }
 );
+
+export const logoutAll = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const refreshToken = req.cookies.refreshToken;
+    
+    if (refreshToken) {
+      await authService.logoutAllDevicesService(refreshToken);
+    }
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      secure: env.NODE_ENV === "production",
+      sameSite: "strict",
+    });
+
+    res.status(200).json({
+      success: true,
+      status: "success",
+      message: "Loggedout from all devices successfully",
+    });
+  }
+);

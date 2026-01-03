@@ -112,3 +112,12 @@ export const refreshUserSessionService = async (refreshToken: string) => {
 export const logoutUserSessionService = async (refreshToken: string) => {
   await sessionService.deleteSession(refreshToken);
 };
+
+export const logoutAllDevicesService = async (refreshToken: string) => {
+  const session = await sessionService.findSession(refreshToken);
+
+  if (!session) {
+    throw new AppError("Invalid session", 401);
+  }
+  await sessionService.deleteAllSessions(session.userId);
+};

@@ -1,6 +1,6 @@
 import { Prisma } from "@prisma/client";
 import prisma from "../utils/prisma";
-import { CreateUserInput } from "../schemas/userSchemas";
+
 
 export const findUserByEmail = async (email: string) => {
   return await prisma.user.findUnique({

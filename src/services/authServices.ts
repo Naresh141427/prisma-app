@@ -88,7 +88,11 @@ export const refreshUserSessionService = async (refreshToken: string) => {
     throw new AppError("Session is not active", 401);
   }
 
-  // generate new token
+  const dbUser = await userModel.findUserById(session.userId);
+  if (!dbUser) {
+    throw new AppError("User not found", 401);
+  }
+
   const { accessToken, refreshToken: newRefreshToken } = await generateTokens(
     session.userId
   );
@@ -106,7 +110,7 @@ export const refreshUserSessionService = async (refreshToken: string) => {
     throw new AppError("Could not refresh session", 500);
   }
 
-  return { accessToken, refreshToken: newRefreshToken };
+  return { accessToken, refreshToken: newRefreshToken, dbUser };
 };
 
 export const logoutUserSessionService = async (refreshToken: string) => {

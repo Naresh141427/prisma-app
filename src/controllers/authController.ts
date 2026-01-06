@@ -66,8 +66,11 @@ export const refreshAccessToken = catchAsync(
       return next(new AppError("Could not rotate access token", 401));
     }
 
-    const { accessToken, refreshToken: newRefreshToken } =
-      await authService.refreshUserSessionService(refreshToken);
+    const {
+      accessToken,
+      refreshToken: newRefreshToken,
+      dbUser,
+    } = await authService.refreshUserSessionService(refreshToken);
 
     res.cookie("refreshToken", newRefreshToken, {
       httpOnly: true,
@@ -80,6 +83,7 @@ export const refreshAccessToken = catchAsync(
       success: true,
       status: "success",
       data: {
+        user: dbUser,
         accessToken,
       },
     });

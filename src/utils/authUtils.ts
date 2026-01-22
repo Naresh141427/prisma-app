@@ -1,7 +1,7 @@
 import argon2 from "argon2";
 import crypto from "crypto";
 import jwt, { SignOptions } from "jsonwebtoken";
-import redis from "./redis";
+
 
 import { env } from "../config/env";
 
